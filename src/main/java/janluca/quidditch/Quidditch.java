@@ -20,9 +20,6 @@ public class Quidditch {
         broom = new BroomItem();
         broom.initModel();
 
-
-
-
         ItemStack stick = new ItemStack(Item.getByNameOrId("stick")), wheat = new ItemStack(Item.getByNameOrId("wheat"));
 
 
