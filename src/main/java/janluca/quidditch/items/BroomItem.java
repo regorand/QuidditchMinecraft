@@ -36,10 +36,32 @@ public class BroomItem extends Item {
     @Override
     public void onUpdate(ItemStack stack, World worldIn, Entity entityIn, int itemSlot, boolean isSelected) {
 
-        if(entityIn instanceof EntityPlayer){
+        if(!worldIn.isRemote && entityIn instanceof EntityPlayer){
             EntityPlayer player = (EntityPlayer) entityIn;
-            if(!worldIn.isRemote && player.inventory.getStackInSlot(40).getUnlocalizedName().equals(this.getUnlocalizedName())){
-                throwSnowball(worldIn, (EntityPlayer) entityIn);
+            boolean hasBroom;
+            try {
+                hasBroom = player.inventory.getStackInSlot(40).getUnlocalizedName().equals(this.getUnlocalizedName());
+            } catch (NullPointerException e){
+                hasBroom = false;
+            }
+            if(hasBroom){
+                System.out.println(player.motionY);
+                if(player.motionY < -0.0784000015258789){
+
+                    player.motionY = 0.1784000015258789;
+                    player.velocityChanged = true;
+                    player.fallDistance = 0.0F;
+                }
+
+                /*
+                player.fallDistance = 0.0F;
+                player.capabilities.allowFlying = true;
+                player.capabilities.isFlying = true;
+                */
+
+                //throwSnowball(worldIn, (EntityPlayer) entityIn);
+            }else{
+                //player.capabilities.allowFlying = false;
             }
         }
 
