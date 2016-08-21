@@ -1,12 +1,10 @@
 package janluca.quidditch.items;
 
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
-import net.minecraft.client.resources.Language;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntitySnowball;
 import net.minecraft.entity.projectile.EntityThrowable;
-import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResult;
@@ -18,7 +16,8 @@ import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import org.lwjgl.Sys;
+
+import java.util.Arrays;
 
 
 /**
@@ -26,7 +25,7 @@ import org.lwjgl.Sys;
  */
 public class BroomItem extends Item {
 
-    public BroomItem(){
+    public BroomItem() {
         setRegistryName("quidditch", "broom");
         setUnlocalizedName("broom");
         GameRegistry.register(this);
@@ -36,17 +35,18 @@ public class BroomItem extends Item {
     @Override
     public void onUpdate(ItemStack stack, World worldIn, Entity entityIn, int itemSlot, boolean isSelected) {
 
-        if(!worldIn.isRemote && entityIn instanceof EntityPlayer){
+
+        if (!worldIn.isRemote && entityIn instanceof EntityPlayer) {
             EntityPlayer player = (EntityPlayer) entityIn;
             boolean hasBroom;
             try {
                 hasBroom = player.inventory.getStackInSlot(40).getUnlocalizedName().equals(this.getUnlocalizedName());
-            } catch (NullPointerException e){
+            } catch (NullPointerException e) {
                 hasBroom = false;
             }
-            if(hasBroom){
+            if (hasBroom) {
                 System.out.println(player.motionY);
-                if(player.motionY < -0.0784000015258789){
+                if (player.motionY < -0.0784000015258789) {
 
                     player.motionY = 0.1784000015258789;
                     player.velocityChanged = true;
@@ -60,38 +60,42 @@ public class BroomItem extends Item {
                 */
 
                 //throwSnowball(worldIn, (EntityPlayer) entityIn);
-            }else{
+            } else {
                 //player.capabilities.allowFlying = false;
+                if (!worldIn.isRemote) {
+                    if (entityIn instanceof EntityPlayer) {
+                        if (player.inventory.offHandInventory[0] != null && player.inventory.offHandInventory[0].getUnlocalizedName().equals(this.getUnlocalizedName())) {
+                            throwSnowball(worldIn, player);
+                        }
+                    }
+                }
             }
         }
-
-
     }
 
     @Override
     @SideOnly(Side.CLIENT)
-    public ActionResult<ItemStack> onItemRightClick(ItemStack itemStackIn, World worldIn, EntityPlayer playerIn, EnumHand hand)
-    {
-        if(!worldIn.isRemote) {
+    public ActionResult<ItemStack> onItemRightClick(ItemStack itemStackIn, World worldIn, EntityPlayer playerIn, EnumHand hand) {
+        if (!worldIn.isRemote) {
             throwSnowball(worldIn, playerIn);
         }
 
         return new ActionResult(EnumActionResult.PASS, itemStackIn);
     }
 
-    public void throwSnowball(World worldIn, EntityPlayer playerIn){
+
+    public void throwSnowball(World worldIn, EntityPlayer playerIn) {
 
         EntityThrowable z = new EntitySnowball(worldIn);
         Vec3d lookDir = playerIn.getLookVec();
-        z.setPosition(playerIn.posX+lookDir.xCoord, playerIn.posY + (double)playerIn.getEyeHeight() - 0.10000000149011612D, playerIn.posZ+lookDir.zCoord);
+        z.setPosition(playerIn.posX, playerIn.posY + (double) playerIn.getEyeHeight() - 0.10000000149011612D, playerIn.posZ);
         z.setThrowableHeading(lookDir.xCoord, lookDir.yCoord, lookDir.zCoord, 1, 0);
         worldIn.spawnEntityInWorld(z);
 
     }
 
     @SideOnly(Side.CLIENT)
-    public void initModel(){
+    public void initModel() {
         ModelLoader.setCustomModelResourceLocation(this, 0, new ModelResourceLocation(getRegistryName(), "inventory"));
     }
-
 }
