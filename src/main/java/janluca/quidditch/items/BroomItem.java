@@ -5,8 +5,6 @@ import janluca.quidditch.KeyBindings;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.projectile.EntitySnowball;
-import net.minecraft.entity.projectile.EntityThrowable;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResult;
@@ -29,7 +27,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class BroomItem extends Item {
 
     private Vec3d broomVec;
-    private boolean hasLanded = true;
+    private boolean updateLookVec = true;
 
     public BroomItem(){
         setRegistryName("quidditch", "broom");
@@ -40,25 +38,18 @@ public class BroomItem extends Item {
     public void onUpdate(ItemStack stack, World worldIn, Entity entityIn, int itemSlot, boolean isSelected) {
             if (entityIn instanceof EntityPlayer) {
                 EntityPlayer player = (EntityPlayer) entityIn;
-                Vec3d playerVec = player.getLookVec();
-                if(hasLanded) {
-                    hasLanded = false;
-                    broomVec = new Vec3d(playerVec.xCoord, playerVec.yCoord, playerVec.zCoord);
+                Vec3d playerLookVec = player.getLookVec();
+                if(updateLookVec) {
+                    broomVec = new Vec3d(playerLookVec.xCoord, playerLookVec.yCoord, playerLookVec.zCoord);
                 }
                 if(player.getHeldItemOffhand() != null && player.getHeldItemOffhand().getItem() instanceof BroomItem) {
-                    player.moveRelative(0.5F, 0.0F, 0.1F);
                     player.capabilities.isFlying = true;
-                    if(KeyBindings.w.isKeyDown()) {
-                    }
-                    if(KeyBindings.a.isKeyDown()) {
-                    }
-                    if(KeyBindings.s.isKeyDown()) {
-                    }
-                    if(KeyBindings.d.isKeyDown()) {
-                    }
-                } else {
-                    if(player.onGround) {
-                        hasLanded = true;
+                    if(KeyBindings.shift.isKeyDown()) {
+                        updateLookVec = false;
+                        shiftFly(player);
+                    } else {
+                        updateLookVec = true;
+                        noShiftFly(player);
                     }
                 }
             }
@@ -68,9 +59,8 @@ public class BroomItem extends Item {
     public ActionResult<ItemStack> onItemRightClick(ItemStack itemStackIn, World worldIn, EntityPlayer playerIn, EnumHand hand) {
         if(!worldIn.isRemote) {
             Vec3d lookDir = playerIn.getLookVec();
+            playerIn.addChatMessage(new TextComponentString(Double.toString(broomVec.xCoord)));
             playerIn.addChatMessage(new TextComponentString(Double.toString(lookDir.xCoord)));
-            playerIn.addChatMessage(new TextComponentString(Double.toString(lookDir.yCoord)));
-            playerIn.addChatMessage(new TextComponentString(Double.toString(lookDir.zCoord)));
         }
 
         return new ActionResult(EnumActionResult.PASS, itemStackIn);
@@ -82,7 +72,7 @@ public class BroomItem extends Item {
         return EnumActionResult.PASS;
     }
 
-    public void throwSnowball(World worldIn, EntityPlayer playerIn){
+    /*public void throwSnowball(World worldIn, EntityPlayer playerIn){
         if(!worldIn.isRemote) {
             EntityThrowable z = new EntitySnowball(worldIn);
             Vec3d lookDir = playerIn.getLookVec();
@@ -90,16 +80,52 @@ public class BroomItem extends Item {
             z.setThrowableHeading(lookDir.xCoord, lookDir.yCoord, lookDir.zCoord, 1, 0);
             worldIn.spawnEntityInWorld(z);
         }
-    }
+    }*/
 
     private void noShiftFly(EntityPlayer playerIn) {
         Vec3d lookDir = playerIn.getLookVec();
-        double xzCoord = Math.sqrt((lookDir.xCoord*lookDir.xCoord) + (lookDir.zCoord*lookDir.zCoord));
+        Vec3d moveDir = lookDir;
+
+        if(KeyBindings.w.isKeyDown()) {
+            if(KeyBindings.a.isKeyDown()) {
+                moveDir = moveDir.rotateYaw(0.5f);
+            }
+            if(KeyBindings.d.isKeyDown()) {
+                moveDir = moveDir.rotateYaw(-0.5f);
+            }
+            playerIn.setVelocity(moveDir.xCoord, moveDir.yCoord, moveDir.zCoord);
+        }
+        if(KeyBindings.s.isKeyDown()) {
+            if(KeyBindings.a.isKeyDown()) {
+                moveDir = moveDir.rotateYaw(-0.5f);
+            }
+            if(KeyBindings.d.isKeyDown()) {
+                moveDir = moveDir.rotateYaw(0.5f);
+            }
+            playerIn.setVelocity(-moveDir.xCoord, -moveDir.yCoord, -moveDir.zCoord);
+        }
     }
 
     private void shiftFly(EntityPlayer playerIn) {
-
+        if(KeyBindings.w.isKeyDown()) {
+            if(broomVec.yCoord >= -1.0) {
+                broomVec = new Vec3d(broomVec.xCoord, broomVec.yCoord-0.05, broomVec.zCoord);
+            }
+        }
+        if(KeyBindings.a.isKeyDown()) {
+                broomVec = broomVec.rotateYaw(0.05f);
+        }
+        if(KeyBindings.s.isKeyDown()) {
+            if(broomVec.yCoord <= 1.0) {
+                broomVec = new Vec3d(broomVec.xCoord, broomVec.yCoord+0.05, broomVec.zCoord);
+            }
+        }
+        if(KeyBindings.d.isKeyDown()) {
+            broomVec = broomVec.rotateYaw(-0.05f);
+        }
+        playerIn.setVelocity(broomVec.xCoord, broomVec.yCoord, broomVec.zCoord);
     }
+
 
     @SideOnly(Side.CLIENT)
     public void initModel(){
