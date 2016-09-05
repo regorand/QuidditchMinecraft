@@ -1,5 +1,7 @@
 package janluca.quidditch;
 
+import janluca.quidditch.entities.RegisterEntities;
+import janluca.quidditch.items.QuaffelItem;
 import janluca.quidditch.items.BroomItem;
 import janluca.quidditch.proxies.CommonSide;
 import net.minecraft.item.Item;
@@ -20,16 +22,19 @@ public class Quidditch {
     @Mod.Instance(MOD_ID)
     public static Quidditch instance = new Quidditch();
 
+    public static BroomItem broom;
+    public static QuaffelItem quaffel;
+
+    private RegisterEntities entities;
+
     @SidedProxy(clientSide = "janluca.quidditch.proxies.ClientSide", serverSide = "janluca.quidditch.proxies.CommonSide")
     public static CommonSide proxy = new CommonSide();
 
-
-
-    public static BroomItem broom;
     @EventHandler
     public void preInit(FMLPreInitializationEvent event){
         broom = new BroomItem();
-        broom.initModel();
+        quaffel = new QuaffelItem();
+        proxy.registerRenderThings();
         KeyBindings.init();
 
         ItemStack stick = new ItemStack(Item.getByNameOrId("stick")), wheat = new ItemStack(Item.getByNameOrId("wheat"));
@@ -45,12 +50,12 @@ public class Quidditch {
 
     @EventHandler
     public void init(FMLInitializationEvent event){
-
+        entities = new RegisterEntities();
     }
 
     @EventHandler
     public void postInit(FMLPostInitializationEvent event){
-        proxy.registerRenderThings();
+        proxy.registerModels();
     }
 
 

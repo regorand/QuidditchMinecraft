@@ -5,4 +5,5 @@ package janluca.quidditch.proxies;
  */
 public class CommonSide {
     public void registerRenderThings() {}
+    public void registerModels() {}
 }

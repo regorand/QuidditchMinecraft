@@ -3,6 +3,7 @@ package janluca.quidditch.items;
 
 import janluca.quidditch.KeyBindings;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -33,7 +34,11 @@ public class BroomItem extends Item {
         setRegistryName("quidditch", "broom");
         setUnlocalizedName("broom");
         GameRegistry.register(this);
+        initModel();
+        setCreativeTab(CreativeTabs.MISC);
     }
+
+
     @Override
     public void onUpdate(ItemStack stack, World worldIn, Entity entityIn, int itemSlot, boolean isSelected) {
             if (entityIn instanceof EntityPlayer) {
@@ -54,6 +59,7 @@ public class BroomItem extends Item {
                 }
             }
     }
+
     @Override
     @SideOnly(Side.CLIENT)
     public ActionResult<ItemStack> onItemRightClick(ItemStack itemStackIn, World worldIn, EntityPlayer playerIn, EnumHand hand) {
@@ -66,35 +72,9 @@ public class BroomItem extends Item {
         return new ActionResult(EnumActionResult.PASS, itemStackIn);
     }
 
-    public EnumActionResult onItemUse(ItemStack stack, EntityPlayer playerIn, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
-    {
-
-        return EnumActionResult.PASS;
-    }
-
-    /*public void throwSnowball(World worldIn, EntityPlayer playerIn){
-        if(!worldIn.isRemote) {
-            EntityThrowable z = new EntitySnowball(worldIn);
-            Vec3d lookDir = playerIn.getLookVec();
-            z.setPosition(playerIn.posX, playerIn.posY + (double) playerIn.getEyeHeight() - 0.10000000149011612D, playerIn.posZ);
-            z.setThrowableHeading(lookDir.xCoord, lookDir.yCoord, lookDir.zCoord, 1, 0);
-            worldIn.spawnEntityInWorld(z);
-        }
-    }*/
-
     private void noShiftFly(EntityPlayer playerIn) {
-        Vec3d lookDir = playerIn.getLookVec();
-        Vec3d moveDir = lookDir;
+        Vec3d moveDir = playerIn.getLookVec();
 
-        if(KeyBindings.w.isKeyDown()) {
-            if(KeyBindings.a.isKeyDown()) {
-                moveDir = moveDir.rotateYaw(0.5f);
-            }
-            if(KeyBindings.d.isKeyDown()) {
-                moveDir = moveDir.rotateYaw(-0.5f);
-            }
-            playerIn.setVelocity(moveDir.xCoord, moveDir.yCoord, moveDir.zCoord);
-        }
         if(KeyBindings.s.isKeyDown()) {
             if(KeyBindings.a.isKeyDown()) {
                 moveDir = moveDir.rotateYaw(-0.5f);
@@ -103,6 +83,15 @@ public class BroomItem extends Item {
                 moveDir = moveDir.rotateYaw(0.5f);
             }
             playerIn.setVelocity(-moveDir.xCoord, -moveDir.yCoord, -moveDir.zCoord);
+        }
+        if(KeyBindings.w.isKeyDown()) {
+            if(KeyBindings.a.isKeyDown()) {
+                moveDir = moveDir.rotateYaw(0.5f);
+            }
+            if(KeyBindings.d.isKeyDown()) {
+                moveDir = moveDir.rotateYaw(-0.5f);
+            }
+            playerIn.setVelocity(moveDir.xCoord, moveDir.yCoord, moveDir.zCoord);
         }
     }
 
