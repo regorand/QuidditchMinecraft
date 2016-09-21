@@ -2,11 +2,11 @@ package janluca.quidditch.proxies;
 
 import janluca.quidditch.Quidditch;
 import janluca.quidditch.entities.EntityQuaffel;
+import janluca.quidditch.renderer.RenderQuaffel;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
-import net.minecraft.client.renderer.entity.RenderSnowball;
 import net.minecraftforge.fml.client.registry.IRenderFactory;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 
@@ -19,7 +19,7 @@ public class ClientSide extends CommonSide {
         RenderingRegistry.registerEntityRenderingHandler(EntityQuaffel.class, new IRenderFactory<EntityQuaffel>() {
             @Override
             public Render<? super EntityQuaffel> createRenderFor(RenderManager manager) {
-                return new RenderSnowball<EntityQuaffel>(manager, Quidditch.quaffel, Minecraft.getMinecraft().getRenderItem());
+                return new RenderQuaffel<EntityQuaffel>(manager, Quidditch.quaffel, Minecraft.getMinecraft().getRenderItem());
             }
         });
     }
